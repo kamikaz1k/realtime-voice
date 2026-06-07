@@ -55,7 +55,106 @@ export function VoiceDictation({ onSubmit }: VoiceDictationProps) {
 }
 ```
 
-## Rendering Component
+## Compared With ElevenLabs `useScribe`
+
+ElevenLabs has a strong direct comparison point: `useScribe` from `@elevenlabs/react`. Their client-side realtime STT guide uses Scribe v2 Realtime, a single-use token, microphone connection, partial transcript callbacks, committed transcript callbacks, and optional timestamped committed transcripts.
+
+The shape is intentionally similar:
+
+```tsx
+import { useState } from "react";
+import { useScribe } from "@elevenlabs/react";
+
+type ElevenLabsDictationProps = {
+  onSubmit: (text: string) => void;
+};
+
+function ElevenLabsDictation({ onSubmit }: ElevenLabsDictationProps) {
+  const [preview, setPreview] = useState("");
+
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    onPartialTranscript: (data) => {
+      setPreview(data.text);
+    },
+    onCommittedTranscript: (data) => {
+      const text = data.text.trim();
+
+      if (text) {
+        onSubmit(text);
+      }
+
+      setPreview("");
+    },
+  });
+
+  async function startNew() {
+    const token = await fetchScribeToken();
+    await scribe.connect({
+      token,
+      microphone: {
+        echoCancellation: true,
+        noiseSuppression: true,
+      },
+    });
+  }
+
+  return (
+    <DictationInput
+      preview={preview}
+      isListening={scribe.isConnected}
+      error={scribe.error?.message}
+      onStart={startNew}
+      onStop={scribe.disconnect}
+    />
+  );
+}
+```
+
+The practical difference:
+
+- `useScribe` connects directly to ElevenLabs Scribe and owns provider-specific session config.
+- `useSpeechToText` keeps the same React shape while routing through OpenAI Realtime ephemeral auth and the rest of this STT/TTS package.
+
+For this library, the behavior to preserve is the preview/commit split: realtime deltas should keep the UI populated during long turns, while VAD-driven final commits decide when to auto-submit.
+
+Sources:
+
+- [ElevenLabs client-side streaming STT](https://elevenlabs.io/docs/eleven-api/guides/how-to/speech-to-text/realtime/client-side-streaming)
+- [ElevenLabs React Scribe SDK](https://elevenlabs.io/docs/eleven-api/resources/libraries/react-scribe)
+
+## Compared With Raw OpenAI Realtime
+
+OpenAI's Realtime transcription docs recommend `gpt-realtime-whisper` when an app needs live transcript deltas. A raw implementation needs to create a transcription session, capture or stream microphone audio, omit or disable turn detection for `gpt-realtime-whisper`, commit audio manually, handle delta and completed events, and reconcile final events by `item_id`.
+
+The raw event handling looks roughly like this:
+
+```ts
+ws.onmessage = (message) => {
+  const event = JSON.parse(message.data);
+
+  if (event.type === "conversation.item.input_audio_transcription.delta") {
+    appendPreviewText(event.delta);
+  }
+
+  if (event.type === "conversation.item.input_audio_transcription.completed") {
+    submitFinalText(event.item_id, event.transcript);
+  }
+};
+```
+
+The practical difference:
+
+- Raw OpenAI Realtime gives you event primitives and leaves transport, buffering, preview state, and commit policy to the app.
+- `useSpeechToText` is the app-facing layer for the common React case: start the mic, show live text, and receive committed utterances.
+
+Sources:
+
+- [OpenAI Realtime overview](https://developers.openai.com/api/docs/guides/realtime)
+- [OpenAI Realtime transcription](https://developers.openai.com/api/docs/guides/realtime-transcription)
+
+<details>
+<summary>Rendering component used by the examples</summary>
 
 Keep rendering separate from the realtime hookup. The UI can be a chat composer, command bar, note editor, or any app-specific input surface.
 
@@ -89,6 +188,8 @@ function DictationInput({
   );
 }
 ```
+
+</details>
 
 ## Client Secret Helper
 
@@ -159,98 +260,6 @@ The hook exposes two text paths because they have different UI jobs:
 - `onFinal` is committed. Use it for auto-submit, command execution, persistence, or analytics.
 
 The important behavior for longer turns is that preview is not tied to final commit. Users can see words appear while they continue speaking, then client-side VAD commits the utterance after a natural pause.
-
-## Compared With Raw OpenAI Realtime
-
-OpenAI's Realtime transcription docs recommend `gpt-realtime-whisper` when an app needs live transcript deltas. A raw implementation needs to create a transcription session, capture or stream microphone audio, omit or disable turn detection for `gpt-realtime-whisper`, commit audio manually, handle delta and completed events, and reconcile final events by `item_id`.
-
-The raw event handling looks roughly like this:
-
-```ts
-ws.onmessage = (message) => {
-  const event = JSON.parse(message.data);
-
-  if (event.type === "conversation.item.input_audio_transcription.delta") {
-    appendPreviewText(event.delta);
-  }
-
-  if (event.type === "conversation.item.input_audio_transcription.completed") {
-    submitFinalText(event.item_id, event.transcript);
-  }
-};
-```
-
-That is a good low-level API when you need full control over transport, audio format, buffering, and commit policy. `useSpeechToText` is the app-facing layer for the common React case: start the mic, show live text, and receive committed utterances.
-
-Sources:
-
-- [OpenAI Realtime overview](https://developers.openai.com/api/docs/guides/realtime)
-- [OpenAI Realtime transcription](https://developers.openai.com/api/docs/guides/realtime-transcription)
-
-## Compared With ElevenLabs `useScribe`
-
-ElevenLabs has a strong direct comparison point: `useScribe` from `@elevenlabs/react`. Their client-side realtime STT guide uses Scribe v2 Realtime, a single-use token, microphone connection, partial transcript callbacks, committed transcript callbacks, and optional timestamped committed transcripts.
-
-The shape is similar:
-
-```tsx
-import { useState } from "react";
-import { useScribe } from "@elevenlabs/react";
-
-type ElevenLabsDictationProps = {
-  onSubmit: (text: string) => void;
-};
-
-function ElevenLabsDictation({ onSubmit }: ElevenLabsDictationProps) {
-  const [preview, setPreview] = useState("");
-
-  const scribe = useScribe({
-    modelId: "scribe_v2_realtime",
-    onPartialTranscript: (data) => {
-      setPreview(data.text);
-    },
-    onCommittedTranscript: (data) => {
-      const text = data.text.trim();
-
-      if (text) {
-        onSubmit(text);
-      }
-
-      setPreview("");
-    },
-  });
-
-  async function startNew() {
-    const token = await fetchScribeToken();
-    await scribe.connect({
-      token,
-      microphone: {
-        echoCancellation: true,
-        noiseSuppression: true,
-      },
-    });
-  }
-
-  return (
-    <DictationInput
-      preview={preview}
-      isListening={scribe.isConnected}
-      error={scribe.error?.message}
-      onStart={startNew}
-      onStop={scribe.disconnect}
-    />
-  );
-}
-```
-
-The difference is product positioning, not whether both can do live STT. ElevenLabs `useScribe` is a provider-specific Scribe integration with a mature React hook. `useSpeechToText` is meant to be the OpenAI Realtime-backed STT hook inside a broader STT/TTS library, with the same auth shape, typed errors, demo patterns, and future provider seams as the rest of this package.
-
-For this library, the behavior to preserve is the preview/commit split: realtime deltas should keep the UI populated during long turns, while VAD-driven final commits decide when to auto-submit.
-
-Sources:
-
-- [ElevenLabs client-side streaming STT](https://elevenlabs.io/docs/eleven-api/guides/how-to/speech-to-text/realtime/client-side-streaming)
-- [ElevenLabs React Scribe SDK](https://elevenlabs.io/docs/eleven-api/resources/libraries/react-scribe)
 
 ## When Not To Use This Hook
 

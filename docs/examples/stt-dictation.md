@@ -7,9 +7,9 @@ This example uses voice dictation with auto-submit:
 - `onStreamChunk` updates the visible draft while the user speaks.
 - `onFinal` submits the finalized utterance to your app.
 - `mode: "continuous"` keeps listening for more speech turns.
-- Client-side VAD decides when to commit an utterance, so users do not need to press submit after every sentence.
+- Client-side VAD decides when to commit an utterance, while realtime transcript deltas keep the UI from sitting empty during longer turns.
 
-## React Hook
+## Realtime Hookup
 
 ```tsx
 import { useState } from "react";
@@ -20,7 +20,7 @@ type VoiceDictationProps = {
 };
 
 export function VoiceDictation({ onSubmit }: VoiceDictationProps) {
-  const [draft, setDraft] = useState("");
+  const [preview, setPreview] = useState("");
 
   const speech = useSpeechToText({
     auth: {
@@ -30,7 +30,7 @@ export function VoiceDictation({ onSubmit }: VoiceDictationProps) {
     mode: "continuous",
     language: "en",
     onStreamChunk: (delta) => {
-      setDraft((current) => current + delta);
+      setPreview((current) => current + delta);
     },
     onFinal: (utterance) => {
       const text = utterance.text.trim();
@@ -39,51 +39,60 @@ export function VoiceDictation({ onSubmit }: VoiceDictationProps) {
         onSubmit(text);
       }
 
-      setDraft("");
+      setPreview("");
     },
   });
 
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-
-        if (draft.trim()) {
-          onSubmit(draft.trim());
-          setDraft("");
-          speech.reset();
-        }
-      }}
-    >
-      <textarea
-        value={draft}
-        readOnly
-        placeholder="Start talking..."
-      />
-
-      <div>
-        <button
-          type="button"
-          onClick={speech.startNew}
-          disabled={speech.isListening}
-        >
-          Start talking
-        </button>
-
-        <button
-          type="button"
-          onClick={speech.stop}
-          disabled={!speech.isListening}
-        >
-          Stop
-        </button>
-      </div>
-
-      {speech.error && <p role="alert">{speech.error.message}</p>}
-    </form>
+    <DictationInput
+      preview={preview}
+      isListening={speech.isListening}
+      error={speech.error?.message}
+      onStart={speech.startNew}
+      onStop={speech.stop}
+    />
   );
 }
+```
 
+## Rendering Component
+
+Keep rendering separate from the realtime hookup. The UI can be a chat composer, command bar, note editor, or any app-specific input surface.
+
+```tsx
+type DictationInputProps = {
+  preview: string;
+  isListening: boolean;
+  error?: string;
+  onStart: () => void;
+  onStop: () => void;
+};
+
+function DictationInput({
+  preview,
+  isListening,
+  error,
+  onStart,
+  onStop,
+}: DictationInputProps) {
+  return (
+    <section>
+      <textarea value={preview} readOnly placeholder="Start talking..." />
+      <button onClick={onStart} disabled={isListening}>
+        Start talking
+      </button>
+      <button onClick={onStop} disabled={!isListening}>
+        Stop
+      </button>
+      {error && <p role="alert">{error}</p>}
+    </section>
+  );
+}
+```
+
+## Client Secret Helper
+
+```ts
 async function getClientSecret() {
   const response = await fetch("/api/realtime-session", {
     method: "POST",
@@ -149,6 +158,8 @@ The hook exposes two text paths because they have different UI jobs:
 - `onStreamChunk` is provisional. Use it for live preview while the user speaks.
 - `onFinal` is committed. Use it for auto-submit, command execution, persistence, or analytics.
 
+The important behavior for longer turns is that preview is not tied to final commit. Users can see words appear while they continue speaking, then client-side VAD commits the utterance after a natural pause.
+
 ## Compared With Raw OpenAI Realtime
 
 OpenAI's Realtime transcription docs recommend `gpt-realtime-whisper` when an app needs live transcript deltas. A raw implementation needs to create a transcription session, capture or stream microphone audio, omit or disable turn detection for `gpt-realtime-whisper`, commit audio manually, handle delta and completed events, and reconcile final events by `item_id`.
@@ -183,20 +194,33 @@ ElevenLabs has a strong direct comparison point: `useScribe` from `@elevenlabs/r
 The shape is similar:
 
 ```tsx
+import { useState } from "react";
 import { useScribe } from "@elevenlabs/react";
 
-function ElevenLabsDictation() {
+type ElevenLabsDictationProps = {
+  onSubmit: (text: string) => void;
+};
+
+function ElevenLabsDictation({ onSubmit }: ElevenLabsDictationProps) {
+  const [preview, setPreview] = useState("");
+
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
     onPartialTranscript: (data) => {
-      appendPreviewText(data.text);
+      setPreview(data.text);
     },
     onCommittedTranscript: (data) => {
-      submitFinalText(data.text);
+      const text = data.text.trim();
+
+      if (text) {
+        onSubmit(text);
+      }
+
+      setPreview("");
     },
   });
 
-  async function start() {
+  async function startNew() {
     const token = await fetchScribeToken();
     await scribe.connect({
       token,
@@ -208,19 +232,20 @@ function ElevenLabsDictation() {
   }
 
   return (
-    <>
-      <button onClick={start} disabled={scribe.isConnected}>
-        Start recording
-      </button>
-      <button onClick={scribe.disconnect} disabled={!scribe.isConnected}>
-        Stop
-      </button>
-    </>
+    <DictationInput
+      preview={preview}
+      isListening={scribe.isConnected}
+      error={scribe.error?.message}
+      onStart={startNew}
+      onStop={scribe.disconnect}
+    />
   );
 }
 ```
 
-The difference is product positioning, not whether both can do live STT. ElevenLabs `useScribe` is a provider-specific Scribe integration. `useSpeechToText` is meant to be the OpenAI Realtime-backed STT hook inside a broader STT/TTS library, with the same auth shape, typed errors, demo patterns, and future provider seams as the rest of this package.
+The difference is product positioning, not whether both can do live STT. ElevenLabs `useScribe` is a provider-specific Scribe integration with a mature React hook. `useSpeechToText` is meant to be the OpenAI Realtime-backed STT hook inside a broader STT/TTS library, with the same auth shape, typed errors, demo patterns, and future provider seams as the rest of this package.
+
+For this library, the behavior to preserve is the preview/commit split: realtime deltas should keep the UI populated during long turns, while VAD-driven final commits decide when to auto-submit.
 
 Sources:
 

@@ -31,6 +31,29 @@ const {
 
 The hooks are independent for v1. A full-duplex voice-agent hook can be added later, but it should not shape the first implementation.
 
+## Architecture Status
+
+The exploratory spike has settled the v1 architecture enough to continue implementation. The important result is that live transcript preview and finalized utterance commits are separate concerns.
+
+Settled for v1:
+
+- STT uses OpenAI Realtime over WebRTC with `gpt-realtime-whisper`.
+- STT live UI text comes from transcript delta events.
+- STT utterance commits are driven by client-side VAD/manual `input_audio_buffer.commit`, not OpenAI `server_vad`.
+- TTS uses OpenAI Realtime over WebSocket so the library owns raw PCM audio chunks.
+- Browser clients use ephemeral client secrets minted by an app server; standard OpenAI API keys stay server-side.
+- Public React hooks remain independent: `useSpeechToText`, `useTextToSpeech`, and `usePcmPlayer`.
+- OpenAI/provider transport details stay in `@realtime-speech/core`, with React hooks exposing a small high-level API.
+
+Still provisional:
+
+- The exact custom VAD strategy contract.
+- Whether `server_vad` or `semantic_vad` should become high-level STT modes later.
+- Whether a full-duplex realtime audio session hook belongs in this library or a companion package.
+- Whether raw Realtime events should be exposed through an opt-in debug surface.
+- Mobile browser behavior until iOS Safari and Android Chrome are manually tested.
+- OpenAI Realtime limits and model behavior should be revalidated against current official docs before publishing.
+
 ## Non-goals for v1
 
 - No full-duplex assistant session.
@@ -39,6 +62,41 @@ The hooks are independent for v1. A full-duplex voice-agent hook can be added la
 - No framework-specific server package beyond a generic Fetch handler.
 - No CJS build.
 - No broad raw Realtime session override API in the hooks.
+
+## Deferred Roadmap: Realtime Audio Session
+
+A full-duplex realtime audio session hook is a future roadmap item, not part of the v1 STT/TTS surface.
+
+This would target the OpenAI realtime-console style workflow:
+
+```text
+microphone audio -> WebRTC media track -> OpenAI Realtime
+model audio -> WebRTC remote media track -> browser audio element
+JSON client/server events <-> WebRTC data channel
+```
+
+Potential public shape:
+
+```ts
+const {
+  startSession,
+  stopSession,
+  sendClientEvent,
+  sendTextMessage,
+  isSessionActive,
+  events,
+  localStream,
+  remoteStream,
+  error,
+} = useRealtimeAudioSession({ auth });
+```
+
+Reference implementation to revisit later:
+
+- [openai/openai-realtime-console](https://github.com/openai/openai-realtime-console)
+- Temporary local exploration clone: `/private/tmp/openai-realtime-console`
+
+Use that repo as inspiration for session setup ergonomics: `RTCPeerConnection`, `getUserMedia`, remote audio through `pc.ontrack`, and Realtime JSON events over a WebRTC data channel. Do not let this future hook blur the v1 distinction between transcription-focused STT, chunk-focused TTS, and full-duplex agent sessions.
 
 ## Package Layout
 

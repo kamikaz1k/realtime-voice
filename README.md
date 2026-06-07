@@ -36,3 +36,7 @@ pnpm build:stt-spike
 `useSpeechToText` defaults to `gpt-realtime-whisper` with client-side VAD and automatic audio commits. This gives live transcript deltas while still producing finalized utterances after local silence detection.
 
 In continuous mode, client VAD uses adaptive silence detection. It starts conservatively, then after a segment has been active for a while, it accepts a shorter quiet gap. That makes natural pauses finalize faster without forcing hard timed cuts in the middle of speech.
+
+## API Examples
+
+- [Voice dictation with auto-submit](docs/examples/stt-dictation.md): add speech input to a chat, agent, command, or form flow with `useSpeechToText`.

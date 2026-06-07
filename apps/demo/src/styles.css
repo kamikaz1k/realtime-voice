@@ -1,0 +1,633 @@
+:root {
+  color: #18242b;
+  background: #f5f7f8;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+select,
+textarea {
+  font: inherit;
+}
+
+input {
+  font: inherit;
+}
+
+button,
+select {
+  min-height: 38px;
+}
+
+button {
+  border: 1px solid #235266;
+  border-radius: 6px;
+  background: #1f6078;
+  color: white;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+select,
+textarea {
+  border: 1px solid #b8c4cb;
+  border-radius: 6px;
+  color: #18242b;
+}
+
+input[type="number"] {
+  border: 1px solid #b8c4cb;
+  border-radius: 6px;
+  color: #18242b;
+  min-height: 34px;
+  padding: 4px 8px;
+}
+
+textarea {
+  min-height: 170px;
+  padding: 12px;
+  resize: vertical;
+  width: 100%;
+}
+
+.appShell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 20px;
+}
+
+.topbar,
+.panel {
+  background: white;
+  border: 1px solid #d8e0e4;
+  border-radius: 8px;
+}
+
+.topbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.topbar h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.topbar p {
+  color: #5d6f79;
+  margin: 4px 0 0;
+}
+
+.statusPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topbarActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.viewSwitch {
+  background: #edf2f4;
+  border: 1px solid #d7e0e4;
+  border-radius: 8px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+}
+
+.viewSwitch button {
+  background: transparent;
+  border-color: transparent;
+  border-radius: 6px;
+  color: #2f4b58;
+  min-height: 32px;
+}
+
+.viewSwitch button.selected {
+  background: white;
+  border-color: #c7d1d6;
+  color: #18242b;
+}
+
+.statusPills span,
+.queueStats span {
+  background: #eef3f5;
+  border-radius: 999px;
+  color: #2f4b58;
+  font-size: 0.88rem;
+  padding: 6px 10px;
+}
+
+.workspace {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+}
+
+.panelHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.panelHeader h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.panelHeader span {
+  color: #5d6f79;
+  font-size: 0.9rem;
+}
+
+.meter {
+  background: #edf1f3;
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.meter div {
+  background: #2b8c7d;
+  height: 100%;
+  transition: width 80ms linear;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vadControls {
+  border-top: 1px solid #e5ebee;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.vadControlsHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.vadControlsHeader h3 {
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.vadControlsHeader button {
+  background: #eef3f5;
+  border-color: #c8d3d8;
+  color: #24343d;
+  min-height: 32px;
+}
+
+.vadGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.vadControl {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(120px, 1fr) minmax(110px, 1.1fr) 76px;
+  min-width: 0;
+}
+
+.vadControl span,
+.vadToggle span {
+  align-self: center;
+  color: #40545e;
+  font-size: 0.84rem;
+}
+
+.vadControl input[type="range"] {
+  min-width: 0;
+  width: 100%;
+}
+
+.vadControl input[type="number"] {
+  width: 76px;
+}
+
+.vadToggle {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.vadToggle input {
+  height: 16px;
+  margin: 0;
+  width: 16px;
+}
+
+.error {
+  background: #fff1f0;
+  border: 1px solid #e09a94;
+  border-radius: 6px;
+  color: #8a2119;
+  margin: 0;
+  padding: 10px;
+}
+
+.logHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.logHeader h3 {
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.eventBadge {
+  align-self: flex-start;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+
+.eventBadge.preview {
+  background: #e8f2ff;
+  color: #1d578f;
+}
+
+.eventBadge.commit {
+  background: #e8f7ef;
+  color: #17603b;
+}
+
+.queueStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.visualPlayground {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.playgroundControls,
+.visualCard {
+  background: white;
+  border: 1px solid #d8e0e4;
+  border-radius: 8px;
+}
+
+.playgroundControls {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(250px, 0.7fr) minmax(
+      360px,
+      1.1fr
+    );
+  padding: 14px;
+}
+
+.sourcePicker {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sourceOption {
+  align-items: flex-start;
+  background: #f7fafb;
+  border-color: #c8d3d8;
+  color: #24343d;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  min-height: 68px;
+  padding: 10px;
+  text-align: left;
+}
+
+.sourceOption.selected {
+  background: #17323b;
+  border-color: #17323b;
+  color: white;
+}
+
+.sourceOption span {
+  font-weight: 700;
+}
+
+.sourceOption small {
+  color: #5d6f79;
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.sourceOption.selected small {
+  color: #c2d2d8;
+}
+
+.signalPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signalReadout {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.signalReadout div {
+  background: #f5f8f9;
+  border: 1px solid #e1e8eb;
+  border-radius: 6px;
+  min-width: 0;
+  padding: 8px;
+}
+
+.signalReadout span,
+.bandMeter span,
+.visualCardHeader span {
+  color: #5d6f79;
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.signalReadout strong {
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  margin-top: 4px;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.signalMeter {
+  background: #edf1f3;
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.signalMeter div {
+  background: linear-gradient(90deg, #188f7a, #f4608a);
+  height: 100%;
+  transition: width 80ms linear;
+}
+
+.bandMeters {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bandMeter {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bandMeter div {
+  background: #eef3f5;
+  border-radius: 999px;
+  height: 7px;
+  overflow: hidden;
+}
+
+.bandMeter i {
+  background: #2b8c7d;
+  display: block;
+  height: 100%;
+  transition: width 90ms linear;
+}
+
+.sourceActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.micActions,
+.ttsInlineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ttsInline {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.ttsInline textarea {
+  min-height: 74px;
+}
+
+.ttsInlineActions {
+  align-content: start;
+  max-width: 180px;
+}
+
+.visualSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.visualSectionHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.visualSectionHeader h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.visualGrid {
+  align-items: start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+
+.visualCard {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.visualCardHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 10px 12px;
+}
+
+.visualCardHeader h3 {
+  font-size: 0.98rem;
+  margin: 0 0 4px;
+}
+
+.visualCanvasShell {
+  background: #11181c;
+  border-top: 1px solid #d8e0e4;
+  height: 190px;
+}
+
+.visualCard.square .visualCanvasShell {
+  aspect-ratio: 1;
+  height: auto;
+}
+
+.visualCanvasShell canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.list {
+  border-top: 1px solid #e5ebee;
+  display: flex;
+  flex-direction: column;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.listItem {
+  border-bottom: 1px solid #e5ebee;
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.turnMeta {
+  display: flex;
+  flex: 0 0 230px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.turnMeta time {
+  color: #2f4b58;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+.listItem span {
+  overflow-wrap: anywhere;
+}
+
+code {
+  color: #5d6f79;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 860px) {
+  .appShell {
+    padding: 12px;
+  }
+
+  .topbar,
+  .workspace {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .topbarActions,
+  .viewSwitch {
+    width: 100%;
+  }
+
+  .viewSwitch button {
+    flex: 1;
+  }
+
+  .playgroundControls {
+    grid-template-columns: 1fr;
+  }
+
+  .sourcePicker,
+  .signalReadout,
+  .bandMeters,
+  .ttsInline,
+  .vadGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .vadControl {
+    grid-template-columns: 1fr;
+  }
+
+  .vadControl input[type="number"] {
+    width: 100%;
+  }
+
+  .ttsInlineActions {
+    max-width: none;
+  }
+
+  .listItem {
+    flex-direction: column;
+  }
+
+  .turnMeta {
+    flex: none;
+  }
+}

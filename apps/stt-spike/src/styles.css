@@ -1,0 +1,299 @@
+:root {
+  color: #172026;
+  background: #f7f8fa;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #25566b;
+  border-radius: 6px;
+  background: #1f6078;
+  color: white;
+  cursor: pointer;
+  min-height: 38px;
+  padding: 0 12px;
+}
+
+button.secondary {
+  border-color: #b9c5cc;
+  background: white;
+  color: #24343d;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+input,
+select {
+  border: 1px solid #b9c5cc;
+  border-radius: 6px;
+  min-height: 38px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+code {
+  color: #455560;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.86em;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 1240px;
+  padding: 20px;
+}
+
+.toolbar,
+.statusGrid,
+.panel,
+.notes {
+  background: white;
+  border: 1px solid #d7dee3;
+  border-radius: 8px;
+}
+
+.toolbar {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(260px, 1fr) minmax(90px, 120px) auto;
+  padding: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label,
+.statusTile span,
+.meterTile span,
+.transcript span {
+  color: #61727d;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.statusGrid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.statusTile,
+.meterTile {
+  background: white;
+  min-height: 76px;
+  padding: 12px;
+}
+
+.statusTile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statusTile strong {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.meterTile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.meter {
+  background: #edf1f3;
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.meter div {
+  background: #2c8c7c;
+  height: 100%;
+  transition: width 80ms linear;
+}
+
+.error {
+  background: #fff1f0;
+  border: 1px solid #e09a94;
+  border-radius: 8px;
+  color: #8a2119;
+  padding: 12px 14px;
+}
+
+.columns {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.85fr);
+}
+
+.panel {
+  min-height: 420px;
+  overflow: hidden;
+}
+
+.panelHeader {
+  align-items: center;
+  border-bottom: 1px solid #d7dee3;
+  display: flex;
+  justify-content: space-between;
+  min-height: 54px;
+  padding: 0 14px;
+}
+
+.panelHeader h2,
+.notes h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.checkbox {
+  align-items: center;
+  color: #455560;
+  display: flex;
+  font-size: 0.92rem;
+  gap: 8px;
+}
+
+.checkbox input {
+  min-height: 0;
+  width: auto;
+}
+
+.empty {
+  color: #61727d;
+  margin: 16px;
+}
+
+.transcript {
+  border-bottom: 1px solid #ecf0f2;
+  padding: 14px;
+}
+
+.transcript > div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.transcript p {
+  font-size: 1.04rem;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.transcript.final {
+  background: #f6fbf9;
+}
+
+.eventList {
+  list-style: none;
+  margin: 0;
+  max-height: 560px;
+  overflow: auto;
+  padding: 0;
+}
+
+.eventList li {
+  border-bottom: 1px solid #ecf0f2;
+  padding: 10px 14px;
+}
+
+.eventLine {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.eventLine time {
+  color: #61727d;
+  font-variant-numeric: tabular-nums;
+}
+
+.eventLine code {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+pre {
+  background: #11181c;
+  border-radius: 6px;
+  color: #dce6eb;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 10px 0 2px;
+  max-height: 260px;
+  overflow: auto;
+  padding: 10px;
+  white-space: pre-wrap;
+}
+
+.notes {
+  padding: 14px;
+}
+
+.notes ul {
+  color: #455560;
+  line-height: 1.5;
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+@media (max-width: 860px) {
+  .app {
+    padding: 12px;
+  }
+
+  .toolbar,
+  .columns,
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
